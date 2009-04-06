@@ -408,6 +408,15 @@ var Dom = YAHOO.util.Dom,
         * @method init
         * @description The Toolbar class's initialization method
         */
+	
+	/**
+        * @protected
+        * @property  configuredButtons
+        * @type Array
+        */
+	_configuredButtons: [],
+		
+		
         init: function(p_oElement, p_oAttributes) {
             YAHOO.widget.Toolbar.superclass.init.call(this, p_oElement, p_oAttributes);
 
@@ -453,8 +462,8 @@ var Dom = YAHOO.util.Dom,
                 }
             });
 
-
-            /**
+	
+     /**
             * @attribute buttons
             * @description Object specifying the buttons to include in the toolbar
             * Example:
@@ -485,8 +494,9 @@ var Dom = YAHOO.util.Dom,
                             } else if (data[i].group !== undefined) {
                                 this.addButtonGroup(data[i]);
                             } else {
-                                this.addButton(data[i]);
-                            }
+								var button = this.addButton(data[i]);
+								this._configuredButtons[this._configuredButtons.length] = button.id;
+							}
                         }
                     }
                 }
@@ -1688,13 +1698,14 @@ var Dom = YAHOO.util.Dom,
             if (button) {
                 var thisID = button.get('id');
                 button.destroy();
-
+				var new_list= [];
                 var len = this._buttonList.length;
                 for (var i = 0; i < len; i++) {
-                    if (this._buttonList[i] && this._buttonList[i].get('id') == thisID) {
-                        this._buttonList[i] = null;
-                    }
+                    if (this._buttonList[i].get('id') != thisID) {
+                        new_list[new_list.length]= this._buttonList[i];
+                    } 
                 }
+				this._buttonList = new_list;
             } else {
                 return false;
             }
@@ -1705,6 +1716,15 @@ var Dom = YAHOO.util.Dom,
         * @return {Boolean}
         */
         destroy: function() {
+		
+			if (Lang.isArray(this._configuredButtons)) {
+				var numConfiguredButtons = this._configuredButtons.length;
+				for(var j=0; j<numConfiguredButtons;j++){
+					this.destroyButton(this._configuredButtons[j]);
+				}
+				this._configuredButtons = null;
+			}
+		
             this.get('element').innerHTML = '';
             this.get('element').className = '';
             //Brutal Object Destroy
@@ -1713,6 +1733,8 @@ var Dom = YAHOO.util.Dom,
                     this[i] = null;
                 }
             }
+			
+
             return true;
         },
         /**

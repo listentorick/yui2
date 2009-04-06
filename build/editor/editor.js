@@ -319,6 +319,7 @@ var Dom = YAHOO.util.Dom,
         
     });
 })();
+
 /**
  * @module editor
  * @description <p>Creates a rich Toolbar widget based on Button. Primarily used with the Rich Text Editor</p>
@@ -723,6 +724,15 @@ var Dom = YAHOO.util.Dom,
         * @method init
         * @description The Toolbar class's initialization method
         */
+	
+	/**
+        * @protected
+        * @property  configuredButtons
+        * @type Array
+        */
+	_configuredButtons: [],
+		
+		
         init: function(p_oElement, p_oAttributes) {
             YAHOO.widget.Toolbar.superclass.init.call(this, p_oElement, p_oAttributes);
 
@@ -767,8 +777,8 @@ var Dom = YAHOO.util.Dom,
                 }
             });
 
-
-            /**
+	
+     /**
             * @attribute buttons
             * @description Object specifying the buttons to include in the toolbar
             * Example:
@@ -799,8 +809,9 @@ var Dom = YAHOO.util.Dom,
                             } else if (data[i].group !== undefined) {
                                 this.addButtonGroup(data[i]);
                             } else {
-                                this.addButton(data[i]);
-                            }
+								var button = this.addButton(data[i]);
+								this._configuredButtons[this._configuredButtons.length] = button.id;
+							}
                         }
                     }
                 }
@@ -1989,13 +2000,14 @@ var Dom = YAHOO.util.Dom,
             if (button) {
                 var thisID = button.get('id');
                 button.destroy();
-
+				var new_list= [];
                 var len = this._buttonList.length;
                 for (var i = 0; i < len; i++) {
-                    if (this._buttonList[i] && this._buttonList[i].get('id') == thisID) {
-                        this._buttonList[i] = null;
-                    }
+                    if (this._buttonList[i].get('id') != thisID) {
+                        new_list[new_list.length]= this._buttonList[i];
+                    } 
                 }
+				this._buttonList= new_list;
             } else {
                 return false;
             }
@@ -2006,6 +2018,15 @@ var Dom = YAHOO.util.Dom,
         * @return {Boolean}
         */
         destroy: function() {
+		
+			if (Lang.isArray(this._configuredButtons)) {
+				var numConfiguredButtons = this._configuredButtons.length;
+				for(var j=0; j<numConfiguredButtons;j++){
+					this.destroyButton(this._configuredButtons[j]);
+				}
+				this._configuredButtons = null;
+			}
+		
             this.get('element').innerHTML = '';
             this.get('element').className = '';
             //Brutal Object Destroy
@@ -2014,6 +2035,8 @@ var Dom = YAHOO.util.Dom,
                     this[i] = null;
                 }
             }
+			
+
             return true;
         },
         /**
@@ -2078,6 +2101,7 @@ var Dom = YAHOO.util.Dom,
 * @type YAHOO.util.CustomEvent
 */
 })();
+
 /**
  * @module editor
  * @description <p>The Rich Text Editor is a UI control that replaces a standard HTML textarea; it allows for the rich formatting of text content, including common structural treatments like lists, formatting treatments like bold and italic text, and drag-and-drop inclusion and sizing of images. The Rich Text Editor's toolbar is extensible via a plugin architecture so that advanced implementations can achieve a high degree of customization.</p>
@@ -7161,6 +7185,7 @@ YAHOO.widget.EditorInfo = {
 
     
 })();
+
 /**
  * @module editor
  * @description <p>The Rich Text Editor is a UI control that replaces a standard HTML textarea; it allows for the rich formatting of text content, including common structural treatments like lists, formatting treatments like bold and italic text, and drag-and-drop inclusion and sizing of images. The Rich Text Editor's toolbar is extensible via a plugin architecture so that advanced implementations can achieve a high degree of customization.</p>
@@ -9179,4 +9204,5 @@ var Dom = YAHOO.util.Dom,
         }
     };
 })();
+
 YAHOO.register("editor", YAHOO.widget.Editor, {version: "@VERSION@", build: "@BUILD@"});
