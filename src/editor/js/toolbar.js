@@ -404,19 +404,19 @@ var Dom = YAHOO.util.Dom,
         * @type String
         */
         CLASS_PREFIX: 'yui-toolbar',
+
+        /**
+        * @protected
+        * @property  configuredButtons
+        * @description  This array holds the ids of buttons created by the toolbar
+        * @type Array
+        */
+        _configuredButtons: [],
+   
         /** 
         * @method init
         * @description The Toolbar class's initialization method
         */
-	
-	/**
-        * @protected
-        * @property  configuredButtons
-        * @type Array
-        */
-	_configuredButtons: [],
-		
-		
         init: function(p_oElement, p_oAttributes) {
             YAHOO.widget.Toolbar.superclass.init.call(this, p_oElement, p_oAttributes);
 
@@ -462,7 +462,6 @@ var Dom = YAHOO.util.Dom,
                 }
             });
 
-	
      /**
             * @attribute buttons
             * @description Object specifying the buttons to include in the toolbar
@@ -492,19 +491,19 @@ var Dom = YAHOO.util.Dom,
                             if (data[i].type == 'separator') {
                                 this.addSeparator();
                             } else if (data[i].group !== undefined) {
-                                var addedButtons = this.addButtonGroup(data[i]);
-								if(addedButtons) {
-									var numAddedButtons = addedButtons.length;
-									for(var j=0; numAddedButtons; j++) {
-										this._configuredButtons[this._configuredButtons.length] = addedButtons[j].id;
-									}
-								}
+                                var addedButtonIds = this.addButtonGroup(data[i]);
+                                if(addedButtonIds) {
+                                    var numAddedButtonIds = addedButtonIds.length;
+                                    for(var j=0; j<numAddedButtonIds; j++) {
+                                        this._configuredButtons[this._configuredButtons.length] = addedButtonIds[j];
+                                    }
+                                }
                             } else {
-								var button = this.addButton(data[i]);
-								if(button) {
-									this._configuredButtons[this._configuredButtons.length] = button.id;
-								}
-							}
+                                var button = this.addButton(data[i]);
+                                if(button) {
+                                    this._configuredButtons[this._configuredButtons.length] = button.id;
+                                }
+                            }
                         }
                     }
                 }
@@ -754,10 +753,10 @@ var Dom = YAHOO.util.Dom,
             }
             
             this._buttonGroupList[oGroup.group] = ul;
-			//An array of the button ids added to this group
-			//This is used for destruction later...
-			var addedButtons = [];
-			var button;
+            //An array of the button ids added to this group
+            //This is used for destruction later...
+            var addedButtons = [];
+            var button;
             for (var i = 0; i < oGroup.buttons.length; i++) {
                 var li = document.createElement('li');
                 li.className = this.CLASS_PREFIX + '-groupitem';
@@ -767,10 +766,13 @@ var Dom = YAHOO.util.Dom,
                 } else {
                     oGroup.buttons[i].container = li;
                     button = this.addButton(oGroup.buttons[i]);
-					addedButtons[addedButtons.length]  = button.id;
+                    //Only store the ref if addButton call is NOT queued
+                    if(button) {
+                        addedButtons[addedButtons.length]  = button.id;
+                    }
                 }
             }
-			return addedButtons;
+            return addedButtons;
         },
         /**
         * @method addButtonToGroup
@@ -1711,14 +1713,14 @@ var Dom = YAHOO.util.Dom,
             if (button) {
                 var thisID = button.get('id');
                 button.destroy();
-				var new_list= [];
+                var new_list= [];
                 var len = this._buttonList.length;
                 for (var i = 0; i < len; i++) {
                     if (this._buttonList[i].get('id') != thisID) {
                         new_list[new_list.length]= this._buttonList[i];
                     } 
                 }
-				this._buttonList = new_list;
+                this._buttonList = new_list;
             } else {
                 return false;
             }
@@ -1729,16 +1731,16 @@ var Dom = YAHOO.util.Dom,
         * @return {Boolean}
         */
         destroy: function() {
-			
-			//This destroy code assumes that buttons created by the toolbar need to be destroyed
-			if (Lang.isArray(this._configuredButtons)) {
-				var numConfiguredButtons = this._configuredButtons.length;
-				for(var j=0; j<numConfiguredButtons;j++){
-					this.destroyButton(this._configuredButtons[j]);
-				}
-				this._configuredButtons = null;
-			}
-		
+            
+            //This destroy code assumes that buttons created by the toolbar need to be destroyed
+            if (Lang.isArray(this._configuredButtons)) {
+                var numConfiguredButtons = this._configuredButtons.length;
+                for(var j=0; j<numConfiguredButtons;j++){
+                    this.destroyButton(this._configuredButtons[j]);
+                }
+                this._configuredButtons = null;
+            }
+        
             this.get('element').innerHTML = '';
             this.get('element').className = '';
             //Brutal Object Destroy
@@ -1747,7 +1749,7 @@ var Dom = YAHOO.util.Dom,
                     this[i] = null;
                 }
             }
-			
+            
 
             return true;
         },
