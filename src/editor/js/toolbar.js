@@ -492,10 +492,18 @@ var Dom = YAHOO.util.Dom,
                             if (data[i].type == 'separator') {
                                 this.addSeparator();
                             } else if (data[i].group !== undefined) {
-                                this.addButtonGroup(data[i]);
+                                var addedButtons = this.addButtonGroup(data[i]);
+								if(addedButtons) {
+									var numAddedButtons = addedButtons.length;
+									for(var j=0; numAddedButtons; j++) {
+										this._configuredButtons[this._configuredButtons.length] = addedButtons[j].id;
+									}
+								}
                             } else {
 								var button = this.addButton(data[i]);
-								this._configuredButtons[this._configuredButtons.length] = button.id;
+								if(button) {
+									this._configuredButtons[this._configuredButtons.length] = button.id;
+								}
 							}
                         }
                     }
@@ -746,7 +754,10 @@ var Dom = YAHOO.util.Dom,
             }
             
             this._buttonGroupList[oGroup.group] = ul;
-
+			//An array of the button ids added to this group
+			//This is used for destruction later...
+			var addedButtons = [];
+			var button;
             for (var i = 0; i < oGroup.buttons.length; i++) {
                 var li = document.createElement('li');
                 li.className = this.CLASS_PREFIX + '-groupitem';
@@ -755,9 +766,11 @@ var Dom = YAHOO.util.Dom,
                     this.addSeparator(li);
                 } else {
                     oGroup.buttons[i].container = li;
-                    this.addButton(oGroup.buttons[i]);
+                    button = this.addButton(oGroup.buttons[i]);
+					addedButtons[addedButtons.length]  = button.id;
                 }
             }
+			return addedButtons;
         },
         /**
         * @method addButtonToGroup
@@ -1716,7 +1729,8 @@ var Dom = YAHOO.util.Dom,
         * @return {Boolean}
         */
         destroy: function() {
-		
+			
+			//This destroy code assumes that buttons created by the toolbar need to be destroyed
 			if (Lang.isArray(this._configuredButtons)) {
 				var numConfiguredButtons = this._configuredButtons.length;
 				for(var j=0; j<numConfiguredButtons;j++){
