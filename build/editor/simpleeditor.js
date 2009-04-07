@@ -1233,6 +1233,10 @@ var Dom = YAHOO.util.Dom,
                         var iel = tmp._button;
                         var parEl = tmp.get('element');
                         parEl.parentNode.replaceChild(iel, parEl);
+                        //The 'element' value is currently the orphaned element
+                        //In order for "destroy" to execute we need to get('element') to reference the correct node.
+                        //I'm not sure if there is a direct approach to setting this value.
+                        tmp._configs.element.value = iel;
                     } else {
                         //Don't put a class on it if it's a real select element
                         tmp.addClass(this.CLASS_PREFIX + '-select');
