@@ -28,6 +28,7 @@ var Dom = YAHOO.util.Dom,
         * @param {String} value The value of the option that we want to mark as selected
         * @description Select an option by value
         */
+        
         YAHOO.widget.ToolbarButtonAdvanced.prototype.checkValue = function(value) {
             var _menuItems = this.getMenu().getItems();
             if (_menuItems.length === 0) {
@@ -41,6 +42,7 @@ var Dom = YAHOO.util.Dom,
                 }
             }      
         };
+        
     } else {
         YAHOO.widget.ToolbarButtonAdvanced = function() {};
     }

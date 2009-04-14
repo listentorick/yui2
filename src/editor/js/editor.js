@@ -265,8 +265,9 @@ var Dom = YAHOO.util.Dom,
         */
         init: function(p_oElement, p_oAttributes) {
             YAHOO.log('init', 'info', 'Editor');
-            
+           
             this._windows = {};
+          
             this._defaultToolbar = {
                 collapse: true,
                 titlebar: 'Text Editing Tools',
@@ -407,11 +408,13 @@ var Dom = YAHOO.util.Dom,
                     }
                 ]
             };
+            
 
             YAHOO.widget.Editor.superclass.init.call(this, p_oElement, p_oAttributes);
         },
         _render: function() {
             YAHOO.widget.Editor.superclass._render.apply(this, arguments);
+            
             var self = this;
             //Render the panel in another thread and delay it a little..
             window.setTimeout(function() {
@@ -764,6 +767,7 @@ var Dom = YAHOO.util.Dom,
         * @description Pre renders the InsertImage window so we get faster window opening.
         */
         _renderInsertImageWindow: function() {
+
                 var el = this.currentElement[0];
                 var str = '<label for="' + this.get('id') + '_insertimage_url"><strong>' + this.STR_IMAGE_URL + ':</strong> <input type="text" id="' + this.get('id') + '_insertimage_url" value="" size="40"></label>';
                 var body = document.createElement('div');
@@ -1891,6 +1895,17 @@ var Dom = YAHOO.util.Dom,
         cmd_justifyright: function() {
             return [this.cmd_justify('right')];
         },
+        
+        destroy: function() {
+            if(this._defaultImageToolbar) {
+                this._defaultImageToolbar.destroy();
+            }
+            YAHOO.widget.Editor.superclass.destroy.call(this);
+            
+            return true;
+        },
+        
+        
         /* }}}*/        
         /**
         * @method toString

@@ -28,6 +28,7 @@ var Dom = YAHOO.util.Dom,
         * @param {String} value The value of the option that we want to mark as selected
         * @description Select an option by value
         */
+        
         YAHOO.widget.ToolbarButtonAdvanced.prototype.checkValue = function(value) {
             var _menuItems = this.getMenu().getItems();
             if (_menuItems.length === 0) {
@@ -41,6 +42,7 @@ var Dom = YAHOO.util.Dom,
                 }
             }      
         };
+        
     } else {
         YAHOO.widget.ToolbarButtonAdvanced = function() {};
     }
@@ -735,15 +737,22 @@ var Dom = YAHOO.util.Dom,
         * @description  This array holds the ids of buttons created by the toolbar
         * @type Array
         */
-        _configuredButtons: [],
+        //_configuredButtons: [],
    
         /** 
         * @method init
         * @description The Toolbar class's initialization method
         */
         init: function(p_oElement, p_oAttributes) {
+            
+            this._configuredButtons = [];
+            this._buttonList = [];
+            
             YAHOO.widget.Toolbar.superclass.init.call(this, p_oElement, p_oAttributes);
-
+                
+             //if( this._configuredButtons){
+                     
+             //}
         },
         /**
         * @method initAttributes
@@ -810,6 +819,7 @@ var Dom = YAHOO.util.Dom,
                 value: [],
                 writeOnce: true,
                 method: function(data) {
+
                     for (var i in data) {
                         if (Lang.hasOwnProperty(data, i)) {
                             if (data[i].type == 'separator') {
@@ -1815,29 +1825,58 @@ var Dom = YAHOO.util.Dom,
         */
         getButtonByValue: function(value) {
             var _buttons = this.get('buttons');
+            var button = null;
+            var buttonMenu = null;
+            var numButtonMenuOptions = 0;
+            var buttonMenuOption = null;
+            
+            var childButtons = null;
+            var childButton = null;
+            var group = null;
             var len = _buttons.length;
+            var numChildButtons = 0;
+            var childButtonMenu = null;
+            var numChildButtonMenuOptions = 0;
+            var childButtonMenuOption = null;
             for (var i = 0; i < len; i++) {
-                if (_buttons[i].group !== undefined) {
-                    for (var m = 0; m < _buttons[i].buttons.length; m++) {
-                        if ((_buttons[i].buttons[m].value == value) || (_buttons[i].buttons[m].menucmd == value)) {
-                            return this.getButtonById(_buttons[i].buttons[m].id);
+                
+                button = _buttons[i];
+                group = button.group;
+            
+                if (group !== undefined) {
+                
+                    childButtons = button.buttons;
+                    numChildButtons = childButtons.length;
+                    for (var m = 0; m < numChildButtons; m++) {
+                        childButton = childButtons[m];
+                        if ((childButton.value == value) || (childButton.menucmd == value)) {
+                            return this.getButtonById(childButton.id);
                         }
-                        if (_buttons[i].buttons[m].menu) { //Menu Button, loop through the values
-                            for (var s = 0; s < _buttons[i].buttons[m].menu.length; s++) {
-                                if (_buttons[i].buttons[m].menu[s].value == value) {
-                                    return this.getButtonById(_buttons[i].buttons[m].id);
+                        childButtonMenu = childButton.menu;
+                        if (childButtonMenu) { //Menu Button, loop through the values
+                            numChildButtonMenuOptions = childButtonMenu.length;
+                            for (var s = 0; s < numChildButtonMenuOptions; s++) {
+                                childButtonMenuOption = childButtonMenu[s];
+                                if (childButtonMenuOption.value == value) {
+                                    return this.getButtonById(childButton.id);
                                 }
                             }
                         }
                     }
                 } else {
-                    if ((_buttons[i].value == value) || (_buttons[i].menucmd == value)) {
-                        return this.getButtonById(_buttons[i].id);
+                    if ((button.value == value) || (button.menucmd == value)) {
+                        return this.getButtonById(button.id);
                     }
-                    if (_buttons[i].menu) { //Menu Button, loop through the values
-                        for (var j = 0; j < _buttons[i].menu.length; j++) {
-                            if (_buttons[i].menu[j].value == value) {
-                                return this.getButtonById(_buttons[i].id);
+                    
+                    buttonMenu = button.menu;
+                    if (buttonMenu) { 
+                        
+                        numButtonMenuOptions = buttonMenu.length;
+                    //Menu Button, loop through the values
+                        for (var j = 0; j < numButtonMenuOptions; j++) {
+                            buttonMenuOption = buttonMenu[j];
+                            if (buttonMenuOption.value == value) {
+                                return this.getButtonById(button.id);
                             }
                         }
                     }
