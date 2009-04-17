@@ -2537,7 +2537,16 @@ var Dom = YAHOO.util.Dom,
         * @description Holds a reference to the nodeChange setTimeout call
         * @type Number
         */
-        _nodeChangeTimer: null,
+    _nodeChangeTimer: null,
+    
+        /**
+        * @property _nodeChangeDelayTimer
+        * @private
+        * @description Holds a reference to the nodeChangeDelay setTimeout call
+        * @type Number
+        */
+      _nodeChangeDelayTimer: null,
+        
         /**
         * @property _lastNodeChangeEvent
         * @private
@@ -2806,16 +2815,24 @@ var Dom = YAHOO.util.Dom,
         * @return {Object}
         */
         _getDoc: function() {
+        
             var value = false;
+            var iframe = null;
+            var iframeElement = null;
+            var iframeContentWindow = null;
+            var iframeDocument = null;
             if (this.get) {
-                if (this.get('iframe')) {
-                    if (this.get('iframe').get) {
-                        if (this.get('iframe').get('element')) {
+                iframe = this.get('iframe');
+                if (iframe) {
+                    if (iframe.get) {
+                        iframeElement = this.get('iframe').get('element');
+                        if (iframeElement) {
                             try {
-                                if (this.get('iframe').get('element').contentWindow) {
-                                    if (this.get('iframe').get('element').contentWindow.document) {
-                                        value = this.get('iframe').get('element').contentWindow.document;
-                                        return value;
+                                iframeContentWindow = iframeElement.contentWindow;
+                                if (iframeContentWindow) {
+                                    iframeDocument = iframeContentWindow.document;
+                                    if (iframeDocument) {
+                                        value = iframeDocument;
                                     }
                                 }
                             } catch (e) {}
@@ -2823,7 +2840,7 @@ var Dom = YAHOO.util.Dom,
                     }
                 }
             }
-            return false;
+            return value;
         },
         /**
         * @private
@@ -4253,7 +4270,8 @@ var Dom = YAHOO.util.Dom,
             var NCself = this;
             this._storeUndo();
             if (this.get('nodeChangeDelay')) {
-                window.setTimeout(function() {
+                this._nodeChangeDelayTimer = window.setTimeout(function() {
+                    this._nodeChangeDelayTimer = null;
                     NCself._nodeChange.apply(NCself, arguments);
                 }, 0);
             } else {
@@ -7083,6 +7101,13 @@ var Dom = YAHOO.util.Dom,
         * @return {Boolean}
         */
         destroy: function() {
+        
+            if (this._nodeChangeDelayTimer) {
+                clearTimeout(this._nodeChangeDelayTimer);
+            }
+
+            this.hide();
+        
             YAHOO.log('Destroying Editor', 'warn', 'SimpleEditor');
             if (this.resize) {
                 YAHOO.log('Destroying Resize', 'warn', 'SimpleEditor');
